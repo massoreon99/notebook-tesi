@@ -1,0 +1,6 @@
+numpy==1.26.4
+scipy==1.13.1
+matplotlib==3.7.3
+networkx==3.2.1
+quantecon==0.8.0
+pydtmc==8.7.0
