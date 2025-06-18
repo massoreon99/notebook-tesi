@@ -6,14 +6,20 @@ from pydtmc import MarkovChain
 import time
 
 
+def risoluzione():
+    """Calcola la risoluzione del timer con time.monotonic."""
+    start = time.monotonic()
+    while time.monotonic() == start:
+        pass
+    return time.monotonic() - start
+
+
 def tempo_per_funzione(funzione, resolution):
     tmin = resolution
     count = 0
     start = time.monotonic()
     while time.monotonic() - start < tmin:
-        bol = funzione()
-        if not bol:
-            print("⚠️ Funzione non ha restituito True.")
+        funzione()
         count += 1
     return (time.monotonic() - start) / count
 
@@ -22,7 +28,7 @@ def calcola_tempi(funzione_check, C=100, n_punti=20, n_matrici=10, seed=123, dis
     Misura il tempo medio del controllo di reversibilità su n_matrici diverse per ogni dimensione.
 
     Args:
-        funzione_check (str)                    :           'nostro', 'nostro2' o 'pydtmc'
+        funzione_check (str)                    :           'nostro' o 'pydtmc'
         C (int)                                 :           valore massimo della dimensione n.
         n_punti (int)                           :           numero di punti da campionare.
         n_matrici (int)                         :           quante matrici generare per ogni n.
@@ -34,7 +40,7 @@ def calcola_tempi(funzione_check, C=100, n_punti=20, n_matrici=10, seed=123, dis
         list of (n, tempo_medio)
     """
 
-    A = 10
+    A = 15
     B = C ** (1 / (n_punti - 1))
     risultati = []
     resolution = risoluzione() * 10000
@@ -46,18 +52,16 @@ def calcola_tempi(funzione_check, C=100, n_punti=20, n_matrici=10, seed=123, dis
         for j in range(n_matrici):
             # 1. Genera la matrice
             if discrete:
-                P_or_Q = genera_P_reversibile(n, seed + j)
+                P_or_Q = gc.genera_P_reversibile(n, seed + j)
             else:
                 if forzata:
-                    P_or_Q = genera_Q_reversibile_forzata(n, seed + j)
+                    P_or_Q = gc.genera_Q_reversibile_forzata(n, seed + j)
                 else:
-                    P_or_Q = genera_Q_reversibile(n, seed + j)
+                    P_or_Q = gc.genera_Q_reversibile(n, seed + j)
 
             # 2. Seleziona la funzione da misurare
             if funzione_check == "nostro":
                 funzione = lambda: check_reversibility(P_or_Q, discrete=discrete)
-            elif funzione_check == "nostro2":
-                funzione = lambda: check_reversibility_old(P_or_Q, discrete=discrete)
             elif funzione_check == "pydtmc":
                 funzione = lambda: MarkovChain(P_or_Q).is_reversible
             else:
@@ -131,10 +135,10 @@ def test_confronto_reversibilita(n_matrici=100, n=100, seed=123):
 
         try:
             # Nostro check
-            nostro = check_reversibility(P)
+            nostro = check_reversibility(P.copy())
 
             # PyDTMC check
-            mc = MarkovChain(P)
+            mc = MarkovChain(P.copy())
             pydtmc = mc.is_reversible
 
             if nostro == pydtmc:
