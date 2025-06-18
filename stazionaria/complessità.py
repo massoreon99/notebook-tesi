@@ -7,7 +7,7 @@ import numpy as np
 from quantecon import gth_solve
 
 METODI = {
-    "gth"                   :                   lambda P,     : gth_solve(P),
+    "gth"                   :                   lambda P, **kw: gth_solve(P),
     "system_numpy"          :                   lambda P, **kw: metodi_stazionaria.sistema_numpy(P, **kw),
     "system_scipy"          :                   lambda P, **kw: metodi_stazionaria.sistema_scipy(P, **kw),
     "eig_numpy"             :                   lambda P, **kw: metodi_stazionaria.solve_via_eig_numpy(P, **kw),
