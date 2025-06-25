@@ -137,7 +137,7 @@ def solve_via_eig_scipy(P_or_Q, discrete=True):
 
 
 
-def solve_via_power_numpy(P_or_Q, discrete=True, tol=1e-15, max_iter=500000):
+def solve_via_power_numpy(P_or_Q, discrete=True, tol=1e-15, max_iter=500000, test=False):
     """
     Calcola il vettore stazionario π usando il Power Method (dense).
 
@@ -176,6 +176,8 @@ def solve_via_power_numpy(P_or_Q, discrete=True, tol=1e-15, max_iter=500000):
         pi_new /= pi_new_sum
 
         if np.linalg.norm(pi_new - pi, 1) < tol:
+            if test == True:
+                return i
             return pi_new
 
         pi = pi_new
